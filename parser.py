@@ -46,26 +46,37 @@ def get_images_url(url):
     return (chapter_name, image_urls)
 
 def download_images(folder_name, urls):
-    img_name = 1
-    with tempfile.TemporaryDirectory() as tmpDirName:
-        print(tmpDirName)
-        for url in urls:
-            ext = url.split('.')[-1]
-            fp, path = tempfile.mkstemp('.' + ext, str(img_name) + '__', tmpDirName)
-            with open(path, mode='wb') as f:
-                img_name += 1
-                response = requests.get(url)
-                f.write(response.content)
+    def download_img(url):
+        global my_lock
+        global img_count
+        img_name = ''
+        with my_lock:
+            img_name = str(img_count)
+            img_count += 1
+        fp, path = tempfile.mkstemp('.jpg', img_name + '__', tmpDirName)
 
+        with open(path, mode='wb') as f:
+            response = requests.get(url)
+            f.write(response.content)
+        
+        return img_name
+
+    with tempfile.TemporaryDirectory() as tmpDirName:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            for result in executor.map(download_img, urls):
+                continue
+        
         import glob
         with open(folder_name + ".pdf","wb") as f:
-	        f.write(img2pdf.convert(glob.glob(tmpDirName + "/*." + ext)))
-    
+            f.write(img2pdf.convert(sorted(glob.glob(tmpDirName + "/*.jpg"))))
+
 
 if __name__ == "__main__":
     domain = 'https://kissmanga.org'
     manga_url = '/manga/gd924067'
     start_time = time.time()
+    img_count = 1
+    my_lock = threading.Lock()
 
     chapter_urls = []
     chapter_urls = get_chapters_url(domain, manga_url)
@@ -79,4 +90,4 @@ if __name__ == "__main__":
         break
 
     duration = time.time() - start_time
-    print(f"Downloaded in {duration} seconds")
+    print(f"Finished in {duration} seconds")
