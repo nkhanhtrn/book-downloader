@@ -46,6 +46,8 @@ def get_images_url(url):
     return (chapter_name, image_urls)
 
 def download_images(folder_name, urls):
+    start_time = time.time()
+
     def download_img(url):
         global my_lock
         global img_count
@@ -69,6 +71,9 @@ def download_images(folder_name, urls):
         with open(folder_name + ".pdf","wb") as f:
             f.write(img2pdf.convert(sorted(glob.glob(tmpDirName + "/*.jpg"))))
 
+        duration = time.time() - start_time
+        print(f"Finished download {folder_name} in {duration}s.")
+
 
 if __name__ == "__main__":
     domain = 'https://kissmanga.org'
@@ -86,7 +91,6 @@ if __name__ == "__main__":
 
     for name in chapters:
         download_images(name, chapters[name])
-        break
 
     duration = time.time() - start_time
     print(f"Finished in {duration} seconds")
