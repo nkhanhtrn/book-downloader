@@ -51,7 +51,7 @@ def download_images(folder_name, urls):
         global img_count
         img_name = ''
         with my_lock:
-            img_name = str(img_count)
+            img_name = str(img_count).zfill(4)
             img_count += 1
         fp, path = tempfile.mkstemp('.jpg', img_name + '__', tmpDirName)
 
@@ -63,8 +63,7 @@ def download_images(folder_name, urls):
 
     with tempfile.TemporaryDirectory() as tmpDirName:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            for result in executor.map(download_img, urls):
-                continue
+            executor.map(download_img, urls) 
         
         import glob
         with open(folder_name + ".pdf","wb") as f:
