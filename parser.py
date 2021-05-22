@@ -62,12 +62,12 @@ def download_images(folder_name, urls):
         with open(path, mode="wb") as f:
             response = requests.get(url)
             f.write(response.content)
-        
+        os.close(fp)
         return img_name
 
     with tempfile.TemporaryDirectory() as tmpDirName:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            executor.map(download_img, urls) 
+            executor.map(download_img, urls)
 
         import glob
         #with open(folder_name + ".pdf","wb") as f:
@@ -76,8 +76,8 @@ def download_images(folder_name, urls):
             for file in sorted(glob.glob(tmpDirName + "/*.jpg")):
                 zip_file.write(file, os.path.basename(file))
 
-        duration = round(time.time() - start_time, 2)
-        print(f"Finished download {folder_name} in {duration}s.")
+    duration = round(time.time() - start_time, 2)
+    print(f"Finished download {folder_name} in {duration}s.")
 
 
 if __name__ == "__main__":
