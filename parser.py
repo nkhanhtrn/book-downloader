@@ -75,6 +75,7 @@ def download_images(folder_name, urls):
         with ZipFile(f"{folder_name}.zip", "w") as zip_file:
             for file in sorted(glob.glob(tmpDirName + "/*.jpg")):
                 zip_file.write(file, os.path.basename(file))
+            zip_file.close()
 
     duration = round(time.time() - start_time, 2)
     print(f"Finished download {folder_name} in {duration}s.")
