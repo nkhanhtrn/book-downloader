@@ -1,12 +1,12 @@
 import concurrent.futures
-#import img2pdf
+import img2pdf
 import os
 import requests
 import tempfile
 import threading
 import time
 from bs4 import BeautifulSoup
-from zipfile import ZIP_STORED, ZipFile
+#from zipfile import ZIP_STORED, ZipFile
 
 thread_local = threading.local()
 
@@ -70,12 +70,12 @@ def download_images(folder_name, urls):
             executor.map(download_img, urls)
 
         import glob
-        #with open(folder_name + ".pdf","wb") as f:
-        #    f.write(img2pdf.convert(sorted(glob.glob(tmpDirName + "/*.jpg"))))
-        with ZipFile(f"{folder_name}.zip", "w") as zip_file:
-            for file in sorted(glob.glob(tmpDirName + "/*.jpg")):
-                zip_file.write(file, os.path.basename(file))
-            zip_file.close()
+        with open(folder_name + ".pdf","wb") as f:
+            f.write(img2pdf.convert(sorted(glob.glob(tmpDirName + "/*.jpg"))))
+        #with ZipFile(f"{folder_name}.zip", "w") as zip_file:
+            #for file in sorted(glob.glob(tmpDirName + "/*.jpg")):
+                #zip_file.write(file, os.path.basename(file))
+            #zip_file.close()
 
     duration = round(time.time() - start_time, 2)
     print(f"Finished download {folder_name} in {duration}s.")
