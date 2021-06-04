@@ -6,9 +6,11 @@ import tempfile
 import threading
 import time
 from bs4 import BeautifulSoup
-#from zipfile import ZIP_STORED, ZipFile
 
 thread_local = threading.local()
+
+def escape(txt):
+    return txt.strip().replace('/', '-').replace("\\", "-")
 
 def get_session():
     if not hasattr(thread_local, "session"):
@@ -27,7 +29,6 @@ def get_chapters_url(manga_url):
 
     return chapter_urls
 
-
 def get_images_url(url):
     session = get_session()
     image_urls = []
@@ -35,13 +36,13 @@ def get_images_url(url):
     
     with session.get(url) as response:
         soup = BeautifulSoup(response.text, "lxml")
-        
+
         # get chapter name
         for chapter in soup.select("#selectEpisode option"):
             if chapter.get("selected") is not None:
-                chapter_name = chapter.text.strip()
+                chapter_name = escape(chapter.text)
                 break
-        
+
         for image in soup.select("#centerDivVideo img"):
             image_urls.append(image.get("src"))
 
@@ -72,10 +73,6 @@ def download_images(folder_name, urls):
         import glob
         with open(folder_name + ".pdf","wb") as f:
             f.write(img2pdf.convert(sorted(glob.glob(tmpDirName + "/*.jpg"))))
-        #with ZipFile(f"{folder_name}.zip", "w") as zip_file:
-            #for file in sorted(glob.glob(tmpDirName + "/*.jpg")):
-                #zip_file.write(file, os.path.basename(file))
-            #zip_file.close()
 
     duration = round(time.time() - start_time, 2)
     print(f"Finished download {folder_name} in {duration}s.")

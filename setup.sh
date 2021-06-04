@@ -12,7 +12,7 @@ do
       cd ~/Downloads/Manga && python3 parser.py
       ;;
     2)
-      cd ~/Downloads/Manga && git update origin master
+      cd ~/Downloads/Manga && git update origin master && python3 -m pip install -r requirements.txt
       ;;
     3)
       break
